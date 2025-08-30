@@ -1,5 +1,5 @@
--- Gui to Lua
--- Version: 3.5 (Updated for game version 0.3.5)
+-- Mining GUI
+-- Version: 3.5 (Updated for Ultimate Mining Tycoon v0.3.5)
 
 -- Instances:
 
@@ -35,12 +35,11 @@ local UICorner_11 = Instance.new("UICorner")
 
 -- Properties:
 
-ScreenGui.Name = "MiningGUI" -- Nome menos óbvio para evitar detecção
+ScreenGui.Name = "MiningGUI"
 ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 5)
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Enabled = true -- Garante que a GUI esteja habilitada
+ScreenGui.Enabled = true
 
--- Proteger GUI (se suportado pelo exploit)
 if syn and syn.protect_gui then
     syn.protect_gui(ScreenGui)
 elseif protectgui then
@@ -64,7 +63,7 @@ TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 TextLabel.BackgroundTransparency = 1.000
 TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 TextLabel.BorderSizePixel = 0
-TextLabel Bedford = UDim2.new(0, 0, -0.0238095243, 0)
+TextLabel.Position = UDim2.new(0, 0, -0.0238095243, 0)
 TextLabel.Size = UDim2.new(0, 231, 0, 36)
 TextLabel.ZIndex = 3
 TextLabel.Font = Enum.Font.Gotham
@@ -437,10 +436,25 @@ local function UKNKUIM_fake_script() -- sellore.sell ore tp
 						hrp.CFrame = cargoVolume.CFrame * CFrame.new(0, 3, 0)
 						task.wait(0.5)
 						local success, err = pcall(function()
-							fireproximityprompt(cargoPrompt)
+							-- Substituído fireproximityprompt por simulação alternativa
+							if fireproximityprompt then
+								fireproximityprompt(cargoPrompt)
+							else
+								-- Simulação via FireServer em RemoteEvent associado, se disponível
+								local promptEvent = cargoPrompt:FindFirstChildWhichIsA("RemoteEvent")
+								if promptEvent then
+									promptEvent:FireServer()
+								else
+									-- Forçar interação via hold duration
+									local holdDuration = cargoPrompt.HoldDuration
+									cargoPrompt:InputHoldBegin()
+									task.wait(holdDuration + 0.1)
+									cargoPrompt:InputHoldEnd()
+								end
+							end
 						end)
 						if not success then
-							warn("Failed to fire CargoPrompt: " .. tostring(err))
+							warn("Failed to interact with CargoPrompt: " .. tostring(err))
 						end
 						task.wait(0.5)
 						teleportToPosition(savedPosition)
@@ -466,7 +480,7 @@ local function FULE_fake_script() -- mine.mine tp
 	local player = game:GetService("Players").LocalPlayer
 	local button = script.Parent
 	
-	local targetPosition = Vector3.new(-1854.74646, 2.04443312, -194.955902) -- Verifique in-game
+	local targetPosition = Vector3.new(-1854.74646, 2.04443312, -194.955902)
 	
 	button.MouseButton1Click:Connect(function()
 		local character = player.Character or player.CharacterAdded:Wait()
@@ -532,7 +546,7 @@ local function TTDVCH_fake_script() -- shop.shop tp
 	local player = game:GetService("Players").LocalPlayer
 	local button = script.Parent
 	
-	local targetPosition = Vector3.new(-1551.3374, 7.15586329, 20.6824684) -- Verifique in-game
+	local targetPosition = Vector3.new(-1551.3374, 7.15586329, 20.6824684)
 	
 	button.MouseButton1Click:Connect(function()
 		local character = player.Character or player.CharacterAdded:Wait()
@@ -603,14 +617,14 @@ local function RTCZIU_fake_script() -- blocksEspButton.blocks esp script
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
 	
-	local spawnedBlocks = Workspace:WaitForChild("SpawnedBlocks", 5) or Workspace:FindFirstChild("SpawnedOres") -- Fallback
+	local spawnedBlocks = Workspace:WaitForChild("SpawnedBlocks", 5) or Workspace:FindFirstChild("SpawnedOres")
 	if not spawnedBlocks then
 		warn("Neither SpawnedBlocks nor SpawnedOres folder found!")
 		return
 	end
 	
 	local espFolder = Instance.new("Folder")
-	espFolder.Name = "BlockESP" -- Nome menos óbvio
+	espFolder.Name = "BlockESP"
 	espFolder.Parent = game.CoreGui
 	
 	local espEnabled = false
@@ -796,7 +810,7 @@ local function VIJPO_fake_script() -- c4shop.c4 shop tp
 	local player = game:GetService("Players").LocalPlayer
 	local button = script.Parent
 	
-	local targetPosition = Vector3.new(387.988403, 75.3827286, -751.247314) -- Verifique in-game
+	local targetPosition = Vector3.new(387.988403, 75.3827286, -751.247314)
 	
 	button.MouseButton1Click:Connect(function()
 		local character = player.Character or player.CharacterAdded:Wait()
