@@ -1,7 +1,8 @@
+```lua
 -- Mining GUI
 -- Version: 3.5 (Updated for Ultimate Mining Tycoon v0.3.5)
 
--- Instances:
+-- Instances (mantidos iguais ao código anterior):
 
 local ScreenGui = Instance.new("ScreenGui")
 local OverFrame = Instance.new("Frame")
@@ -33,7 +34,7 @@ local UICorner_10 = Instance.new("UICorner")
 local resetc4button = Instance.new("TextButton")
 local UICorner_11 = Instance.new("UICorner")
 
--- Properties:
+-- Properties (mantidos iguais ao código anterior):
 
 ScreenGui.Name = "MiningGUI"
 ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 5)
@@ -309,7 +310,7 @@ resetc4button.TextWrapped = true
 UICorner_11.CornerRadius = UDim.new(0, 3)
 UICorner_11.Parent = resetc4button
 
--- Scripts:
+-- Scripts (mantidos iguais, exceto ETDSH_fake_script):
 
 local function INPMCR_fake_script() -- Showhide.show/hide button 
 	local script = Instance.new('LocalScript', Showhide)
@@ -436,16 +437,13 @@ local function UKNKUIM_fake_script() -- sellore.sell ore tp
 						hrp.CFrame = cargoVolume.CFrame * CFrame.new(0, 3, 0)
 						task.wait(0.5)
 						local success, err = pcall(function()
-							-- Substituído fireproximityprompt por simulação alternativa
 							if fireproximityprompt then
 								fireproximityprompt(cargoPrompt)
 							else
-								-- Simulação via FireServer em RemoteEvent associado, se disponível
 								local promptEvent = cargoPrompt:FindFirstChildWhichIsA("RemoteEvent")
 								if promptEvent then
 									promptEvent:FireServer()
 								else
-									-- Forçar interação via hold duration
 									local holdDuration = cargoPrompt.HoldDuration
 									cargoPrompt:InputHoldBegin()
 									task.wait(holdDuration + 0.1)
@@ -830,6 +828,7 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 	local Players = game:GetService("Players")
 	local UserInputService = game:GetService("UserInputService")
 	local VirtualInputManager = game:GetService("VirtualInputManager")
+	local RunService = game:GetService("RunService")
 	local camera = workspace.CurrentCamera
 	
 	local player = Players.LocalPlayer
@@ -857,7 +856,7 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 		humanoid.Health = 0
 	
 		player.CharacterAdded:Wait()
-		task.wait(0.5)
+		task.wait(1) -- Aumentado para garantir inicialização no mobile
 	
 		character = player.Character or player.CharacterAdded:Wait()
 		local newRoot = character:WaitForChild("HumanoidRootPart", 5)
@@ -866,16 +865,39 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 		if newRoot and newHumanoid then
 			newRoot.CFrame = savedCFrame
 			newHumanoid.WalkSpeed = savedWalkSpeed
-			camera.CFrame = savedCameraCFrame
+			
+			-- Forçar câmera imediatamente
 			camera.CameraType = Enum.CameraType.Custom
 			camera.CameraSubject = newHumanoid
-			task.wait(0.5)
+			camera.CFrame = savedCameraCFrame
+			
+			-- Loop para garantir que a câmera não seja sobrescrita
+			local cameraFixConnection
+			local fixAttempts = 0
+			local maxFixAttempts = 30 -- Aproximadamente 1 segundo a 30 FPS
+			cameraFixConnection = RunService.RenderStepped:Connect(function()
+				if fixAttempts >= maxFixAttempts then
+					cameraFixConnection:Disconnect()
+					return
+				end
+				if camera.CameraType ~= Enum.CameraType.Custom or camera.CameraSubject ~= newHumanoid then
+					camera.CameraType = Enum.CameraType.Custom
+					camera.CameraSubject = newHumanoid
+					camera.CFrame = savedCameraCFrame
+				end
+				fixAttempts = fixAttempts + 1
+			end)
+			
+			task.wait(0.5) -- Delay antes da tecla
 			local success, err = pcall(function()
 				VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
+				task.wait(0.1)
 				VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
 			end)
 			if not success then
 				warn("Failed to simulate key press: " .. tostring(err))
+			else
+				warn("C4 reset completed successfully")
 			end
 		else
 			warn("Failed to restore character after C4 reset!")
@@ -903,3 +925,4 @@ coroutine.wrap(ETDSH_fake_script)()
 
 -- Debug inicial
 warn("Mining GUI loaded at: " .. os.date())
+```
