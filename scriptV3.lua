@@ -26,10 +26,11 @@ local UICorner_8 = Instance.new("UICorner")
 local walkspeed = Instance.new("TextLabel")
 local blocksEspButton = Instance.new("TextButton")
 local UICorner_9 = Instance.new("UICorner")
+local ftoresetc4cd = Instance.new("TextLabel")
 local shifttohide = Instance.new("TextLabel")
 local c4shop = Instance.new("TextButton")
 local UICorner_10 = Instance.new("UICorner")
-local c4Button = Instance.new("TextButton")
+local resetc4button = Instance.new("TextButton")
 local UICorner_11 = Instance.new("UICorner")
 
 --Properties:
@@ -236,6 +237,21 @@ blocksEspButton.TextWrapped = true
 UICorner_9.CornerRadius = UDim.new(0, 3)
 UICorner_9.Parent = blocksEspButton
 
+ftoresetc4cd.Name = "f to reset c4 cd"
+ftoresetc4cd.Parent = Frame
+ftoresetc4cd.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ftoresetc4cd.BackgroundTransparency = 1.000
+ftoresetc4cd.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ftoresetc4cd.BorderSizePixel = 0
+ftoresetc4cd.Position = UDim2.new(0.0259740259, 0, 0.646949053, 0)
+ftoresetc4cd.Size = UDim2.new(0, 216, 0, 48)
+ftoresetc4cd.Font = Enum.Font.Unknown
+ftoresetc4cd.Text = "- Press F To Reset C4 Cooldown (mined ores lost)"
+ftoresetc4cd.TextColor3 = Color3.fromRGB(255, 255, 255)
+ftoresetc4cd.TextScaled = true
+ftoresetc4cd.TextSize = 17.000
+ftoresetc4cd.TextWrapped = true
+
 shifttohide.Name = "shift to hide"
 shifttohide.Parent = Frame
 shifttohide.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -268,22 +284,22 @@ c4shop.TextWrapped = true
 UICorner_10.CornerRadius = UDim.new(0, 3)
 UICorner_10.Parent = c4shop
 
-c4Button.Name = "c4"
-c4Button.Parent = Frame
-c4Button.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
-c4Button.BorderColor3 = Color3.fromRGB(0, 0, 0)
-c4Button.BorderSizePixel = 0
-c4Button.Position = UDim2.new(0.0299999677, 0, 0.646949053, 0)
-c4Button.Size = UDim2.new(0, 216, 0, 47)
-c4Button.Font = Enum.Font.SourceSans
-c4Button.Text = "c4"
-c4Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-c4Button.TextScaled = true
-c4Button.TextSize = 22.000
-c4Button.TextWrapped = true
+resetc4button.Name = "reset c4 button"
+resetc4button.Parent = Frame
+resetc4button.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+resetc4button.BorderColor3 = Color3.fromRGB(0, 0, 0)
+resetc4button.BorderSizePixel = 0
+resetc4button.Position = UDim2.new(0.0299999677, 0, 0.646949053, 0)
+resetc4button.Size = UDim2.new(0, 216, 0, 47)
+resetc4button.Font = Enum.Font.SourceSans
+resetc4button.Text = "Mobile reset c4 button"
+resetc4button.TextColor3 = Color3.fromRGB(255, 255, 255)
+resetc4button.TextScaled = true
+resetc4button.TextSize = 22.000
+resetc4button.TextWrapped = true
 
 UICorner_11.CornerRadius = UDim.new(0, 3)
-UICorner_11.Parent = c4Button
+UICorner_11.Parent = resetc4button
 
 -- Scripts:
 
@@ -779,57 +795,71 @@ local function VIJPO_fake_script() -- c4shop.c4 shop tp
 	end)
 end
 coroutine.wrap(VIJPO_fake_script)()
-local function ETDSH_fake_script() -- c4Button.c4 action 
-	local script = Instance.new('LocalScript', c4Button)
+local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button 
+	local script = Instance.new('LocalScript', resetc4button)
 
 	local Players = game:GetService("Players")
+	local UserInputService = game:GetService("UserInputService")
+	local VirtualInputManager = game:GetService("VirtualInputManager")
 	local camera = workspace.CurrentCamera
-	
+
 	local player = Players.LocalPlayer
-	local button = script.Parent  -- "c4"
+	local button = script.Parent  -- "Reset C4 Button"
 	local character = player.Character or player.CharacterAdded:Wait()
-	
+
 	local savedCFrame
 	local savedCameraCFrame
 	local savedWalkSpeed
-	
-	local function respawnAtCurrent()
+
+	local function resetC4()
 		character = player.Character or player.CharacterAdded:Wait()
 		local root = character:FindFirstChild("HumanoidRootPart")
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
-	
+
 		if not (root and humanoid) then return end
-	
+
 		-- Save position, camera, walkspeed
 		savedCFrame = root.CFrame
 		savedCameraCFrame = camera.CFrame
 		savedWalkSpeed = humanoid.WalkSpeed
-	
+
 		-- Reset character
 		humanoid.Health = 0
-	
+
 		-- Wait for new character
 		player.CharacterAdded:Wait()
 		task.wait(0.2)
-	
+
 		character = player.Character or player.CharacterAdded:Wait()
 		local newRoot = character:WaitForChild("HumanoidRootPart")
 		local newHumanoid = character:WaitForChild("Humanoid")
-	
+
 		-- Restore data
 		newRoot.CFrame = savedCFrame
 		newHumanoid.WalkSpeed = savedWalkSpeed
 		camera.CFrame = savedCameraCFrame
-	
-		-- Simulate pressing "2"
+
+		-- Forçar modo mobile: direcional dinâmico (HUD mobile)
+		player.DevTouchMovementMode = Enum.DevTouchMovementMode.DynamicThumbstick
+
+		-- Simular pressionar "2"
+		task.wait(0.2)
 		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
 		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
 	end
-	
-	-- When player clicks the GUI button
+
+	-- Quando player clica no botão (mobile ou PC)
 	button.MouseButton1Click:Connect(function()
-		respawnAtCurrent()
+		resetC4()
 	end)
-	
+
+	-- Quando PC player pressiona "F"
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		if input.KeyCode == Enum.KeyCode.F then
+			resetC4()
+			print("Triggered")
+		end
+	end)
 end
 coroutine.wrap(ETDSH_fake_script)()
