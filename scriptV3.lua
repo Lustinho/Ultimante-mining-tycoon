@@ -237,7 +237,7 @@ blocksEspButton.TextWrapped = true
 UICorner_9.CornerRadius = UDim.new(0, 3)
 UICorner_9.Parent = blocksEspButton
 
-ftoresetc4cd.Name = "f to reset c4 cd"
+ftoresetc4cd.Name = "Reset C4"
 ftoresetc4cd.Parent = Frame
 ftoresetc4cd.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 ftoresetc4cd.BackgroundTransparency = 1.000
@@ -246,7 +246,7 @@ ftoresetc4cd.BorderSizePixel = 0
 ftoresetc4cd.Position = UDim2.new(0.0259740259, 0, 0.646949053, 0)
 ftoresetc4cd.Size = UDim2.new(0, 216, 0, 48)
 ftoresetc4cd.Font = Enum.Font.Unknown
-ftoresetc4cd.Text = "- Press F To Reset C4 Cooldown (mined ores lost)"
+ftoresetc4cd.Text = "Reset C4"
 ftoresetc4cd.TextColor3 = Color3.fromRGB(255, 255, 255)
 ftoresetc4cd.TextScaled = true
 ftoresetc4cd.TextSize = 17.000
@@ -799,8 +799,6 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 	local script = Instance.new('LocalScript', resetc4button)
 
 	local Players = game:GetService("Players")
-	local UserInputService = game:GetService("UserInputService")
-	local VirtualInputManager = game:GetService("VirtualInputManager")
 	local camera = workspace.CurrentCamera
 
 	local player = Players.LocalPlayer
