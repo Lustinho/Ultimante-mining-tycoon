@@ -284,7 +284,7 @@ c4shop.TextWrapped = true
 UICorner_10.CornerRadius = UDim.new(0, 3)
 UICorner_10.Parent = c4shop
 
-resetc4button.Name = "reset c4 button"
+resetc4button.Name = "Reset C4"
 resetc4button.Parent = Frame
 resetc4button.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
 resetc4button.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -292,7 +292,7 @@ resetc4button.BorderSizePixel = 0
 resetc4button.Position = UDim2.new(0.0299999677, 0, 0.646949053, 0)
 resetc4button.Size = UDim2.new(0, 216, 0, 47)
 resetc4button.Font = Enum.Font.SourceSans
-resetc4button.Text = "Mobile reset c4 button"
+resetc4button.Text = "Reset C4"
 resetc4button.TextColor3 = Color3.fromRGB(255, 255, 255)
 resetc4button.TextScaled = true
 resetc4button.TextSize = 22.000
@@ -843,8 +843,6 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 		player.DevTouchMovementMode = Enum.DevTouchMovementMode.DynamicThumbstick
 
 		-- Simular pressionar "2"
-		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
-		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
 	end
 
 	-- Quando player clica no botão (mobile ou PC)
@@ -852,13 +850,5 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 		resetC4()
 	end)
 
-	-- Quando PC player pressiona "F"
-	UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed then return end
-		if input.KeyCode == Enum.KeyCode.F then
-			resetC4()
-			print("Triggered")
-		end
-	end)
 end
 coroutine.wrap(ETDSH_fake_script)()
