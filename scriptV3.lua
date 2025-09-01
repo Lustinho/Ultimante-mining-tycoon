@@ -783,7 +783,6 @@ local function ETDSH_fake_script() -- c4Button.c4 action
 	local script = Instance.new('LocalScript', c4Button)
 
 	local Players = game:GetService("Players")
-	local VirtualInputManager = game:GetService("VirtualInputManager")
 	local camera = workspace.CurrentCamera
 	
 	local player = Players.LocalPlayer
