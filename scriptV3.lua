@@ -826,9 +826,6 @@ local function ETDSH_fake_script() -- c4Button.c4 action
 	end
 	
 	-- When player clicks the GUI button
-	button.MouseButton1Click:Connect(function()
-		respawnAtCurrent()
-	end)
 	
 end
 coroutine.wrap(ETDSH_fake_script)()
