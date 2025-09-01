@@ -31,6 +31,8 @@ local c4shop = Instance.new("TextButton")
 local UICorner_10 = Instance.new("UICorner")
 local c4Button = Instance.new("TextButton")
 local UICorner_11 = Instance.new("UICorner")
+local testButton = Instance.new("TextButton")
+local UICorner_12 = Instance.new("UICorner")
 
 --Properties:
 
@@ -285,6 +287,23 @@ c4Button.TextWrapped = true
 UICorner_11.CornerRadius = UDim.new(0, 3)
 UICorner_11.Parent = c4Button
 
+testButton.Name = "testButton"
+testButton.Parent = Frame
+testButton.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+testButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+testButton.BorderSizePixel = 0
+testButton.Position = UDim2.new(0.0303, 0, 0.72, 0) -- Ajuste a posição conforme preferir
+testButton.Size = UDim2.new(0, 216, 0, 32)
+testButton.Font = Enum.Font.SourceSans
+testButton.Text = "test"
+testButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+testButton.TextScaled = true
+testButton.TextSize = 22.000
+testButton.TextWrapped = true
+
+UICorner_12.CornerRadius = UDim.new(0, 3)
+UICorner_12.Parent = testButton
+
 -- Scripts:
 
 local function INPMCR_fake_script() -- Showhide.show/hide button 
@@ -427,7 +446,7 @@ local function FULE_fake_script() -- mine.mine tp
 	local button = script.Parent -- The TextButton this script is inside
 	
 	--// Target Position (CHANGE THIS to where you want to teleport)
-	local targetPosition = Vector3.new(-1854.74646, 2.04443312, -194.955902, 0.0103887655, -4.52599488e-06, 0.999945998, 3.74917581e-05, 1.00000012, 4.13460657e-06, -0.999946117, 3.74438969e-05, 0.0103887822) -- Example coordinates
+	local targetPosition = Vector3.new(-1854.74646, 2.04443312, -194.955902, 0.0103887655, -4.52599488e-06, 0.999945998, 3.74917581e-05, 1.00000012, 4.13460657e-06, -0.999946117, 3.74438969e-05, 0.0103887655)
 	
 	--// Teleport when button is clicked
 	button.MouseButton1Click:Connect(function()
@@ -496,7 +515,7 @@ local function TTDVCH_fake_script() -- shop.shop tp
 	local button = script.Parent -- The TextButton this script is inside
 	
 	--// Target Position (CHANGE THIS to where you want to teleport)
-	local targetPosition = Vector3.new(-1551.3374, 7.15586329, 20.6824684, 0.00455896882, 3.29408795e-06, -0.999989569, 3.94628732e-05, 1, 3.47569585e-06, 0.999989569, -3.94807648e-05, 0.00455894647) -- Example coordinates
+	local targetPosition = Vector3.new(-1551.3374, 7.15586329, 20.6824684, 0.00455896882, 3.29408795e-06, -0.999989569, 3.94628732e-05, 1, 3.47569585e-06, 0.999989569, -3.94807648e-05, 0.00455894647)
 	
 	--// Teleport when button is clicked
 	button.MouseButton1Click:Connect(function()
@@ -595,7 +614,7 @@ local function RTCZIU_fake_script() -- blocksEspButton.blocks esp script
 		["Adamantium"] = Color3.fromRGB(62, 125, 56),
 		["Rhodium"] = Color3.fromRGB(179, 182, 174),
 		["Unobtanium"] = Color3.fromRGB(255, 0, 255),
-	
+
 		-- Gems
 		["Topaz"] = Color3.fromRGB(69, 70, 13),
 		["Emerald"] = Color3.fromRGB(2, 81, 0),
@@ -767,7 +786,7 @@ local function VIJPO_fake_script() -- c4shop.c4 shop tp
 	local button = script.Parent -- The TextButton this script is inside
 	
 	--// Target Position (CHANGE THIS to where you want to teleport)
-	local targetPosition = Vector3.new(387.988403, 75.3827286, -751.247314, 0.744538784, -3.17664817e-05, 0.667579174, 3.839493e-05, 1, 4.75812703e-06, -0.667579174, 2.20914371e-05, 0.744538844) -- Example coordinates
+	local targetPosition = Vector3.new(387.988403, 75.3827286, -751.247314, 0.744538784, -3.17664817e-05, 0.667579174, 3.839493e-05, 1, 4.75812703e-06, -0.667579174, 2.20914371e-05, 0.744538844)
 	
 	--// Teleport when button is clicked
 	button.MouseButton1Click:Connect(function()
@@ -835,3 +854,29 @@ local function ETDSH_fake_script() -- c4Button.c4 action
 	
 end
 coroutine.wrap(ETDSH_fake_script)()
+local function TESTBTN_fake_script() -- testButton: Save/Load position
+	local script = Instance.new('LocalScript', testButton)
+
+	local player = game.Players.LocalPlayer
+	local button = script.Parent
+
+	local savedCFrame = nil
+
+	button.MouseButton1Click:Connect(function()
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+
+		if not savedCFrame then
+			-- Salva a posição atual
+			savedCFrame = hrp.CFrame
+			button.Text = "Restaurar posição"
+		else
+			-- Restaura a posição salva
+			hrp.CFrame = savedCFrame
+			savedCFrame = nil
+			button.Text = "test"
+		end
+	end)
+end
+coroutine.wrap(TESTBTN_fake_script)()
