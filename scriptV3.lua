@@ -823,9 +823,14 @@ local function ETDSH_fake_script() -- c4Button.c4 action
 		camera.CFrame = savedCameraCFrame
 	
 		-- Simulate pressing "2"
+		VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
+		VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
 	end
 	
 	-- When player clicks the GUI button
+	button.MouseButton1Click:Connect(function()
+		respawnAtCurrent()
+	end)
 	
 end
 coroutine.wrap(ETDSH_fake_script)()
