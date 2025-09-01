@@ -849,14 +849,5 @@ local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button
 		resetC4()
 	end)
 	
-	-- 🖱️ When PC player presses "F"
-	UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed then return end
-		if input.KeyCode == Enum.KeyCode.F then
-			resetC4()
-			print("Triggered")
-		end
-	end)
-	
 end
 coroutine.wrap(ETDSH_fake_script)()
