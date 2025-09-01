@@ -1,5 +1,5 @@
 -- Gui to Lua
--- Version: 3.5
+-- Version: 3.2
 
 -- Instances:
 
@@ -303,153 +303,551 @@ UICorner_11.Parent = resetc4button
 
 -- Scripts:
 
--- (Demais scripts da interface removidos para foco. Mantenha seus scripts de teleporte, sell, etc. abaixo deste comentário.)
--- (Você pode inserir aqui todos os outros scripts do seu GUI, igual ao exemplo original.)
+local function INPMCR_fake_script() -- Showhide.show/hide button 
+	local script = Instance.new('LocalScript', Showhide)
 
--- *** ESP SÓ PARA OS MINEIROS (NPCs EM Workspace.Miners) ***
-local function MinerESP()
-    -- [ Miner ESP para Roblox Mobile | Só para os 'Mineiros' em Workspace.Miners ]
-    -- Executa ao clicar no botão blocksEspButton
-
-    local Players = game:GetService("Players")
-    local Workspace = game:GetService("Workspace")
-    local RunService = game:GetService("RunService")
-    local player = Players.LocalPlayer
-
-    -- Configurar
-    local MINERS_FOLDER_NAME = "Miners" -- Troque para o nome correto no seu jogo
-    local MAX_DISTANCE = 200 -- Distância máxima para mostrar ESP
-
-    -- UI
-    local blocksEspButton = script.Parent
-    blocksEspButton.Text = "Mineiros ESP: OFF"
-
-    -- CoreGui para ESP
-    local CoreGui = game:GetService("CoreGui")
-    local espFolder = CoreGui:FindFirstChild("MinerESP") or Instance.new("Folder")
-    espFolder.Name = "MinerESP"
-    espFolder.Parent = CoreGui
-
-    local espEnabled = false
-    local espParts = {}
-
-    -- Função para criar ESP no personagem mineiro
-    local function createESPForMiner(minerModel)
-        local hrp = minerModel:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        -- Se já existe ESP para este mineiro, não cria de novo
-        if espParts[minerModel] then return end
-
-        -- Adorno caixa
-        local box = Instance.new("BoxHandleAdornment")
-        box.Adornee = hrp
-        box.Parent = espFolder
-        box.AlwaysOnTop = true
-        box.Size = hrp.Size
-        box.ZIndex = 2
-        box.Transparency = 0.4
-        box.Color3 = Color3.fromRGB(255, 204, 0)
-        box.Visible = false
-
-        -- Billboard com nome
-        local billboard = Instance.new("BillboardGui")
-        billboard.Adornee = hrp
-        billboard.Parent = espFolder
-        billboard.Size = UDim2.new(0, 100, 0, 20)
-        billboard.StudsOffset = Vector3.new(0, hrp.Size.Y/2 + 2, 0)
-        billboard.AlwaysOnTop = true
-        billboard.Enabled = false
-
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Parent = billboard
-        textLabel.Size = UDim2.new(1, 0, 1, 0)
-        textLabel.BackgroundTransparency = 1
-        textLabel.Text = minerModel.Name
-        textLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-        textLabel.TextStrokeTransparency = 0
-        textLabel.Font = Enum.Font.SourceSansBold
-        textLabel.TextScaled = true
-
-        espParts[minerModel] = {box = box, billboard = billboard}
-    end
-
-    -- Função para remover ESP de mineiro
-    local function removeESPForMiner(minerModel)
-        if espParts[minerModel] then
-            espParts[minerModel].box:Destroy()
-            espParts[minerModel].billboard:Destroy()
-            espParts[minerModel] = nil
-        end
-    end
-
-    -- Atualizar ESP para todos os mineiros
-    local function updateAllESP()
-        -- Remover ESP de mineiros que não existem mais
-        for miner, _ in pairs(espParts) do
-            if not miner.Parent then
-                removeESPForMiner(miner)
-            end
-        end
-
-        -- Adicionar ESP para mineiros existentes
-        local minersFolder = Workspace:FindFirstChild(MINERS_FOLDER_NAME)
-        if minersFolder then
-            for _, miner in ipairs(minersFolder:GetChildren()) do
-                if miner:IsA("Model") and miner:FindFirstChild("HumanoidRootPart") then
-                    createESPForMiner(miner)
-                end
-            end
-        end
-    end
-
-    -- Mostrar/Esconder ESP conforme ativação
-    local function setESPActive(state)
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        for miner, esp in pairs(espParts) do
-            if miner.Parent and miner:FindFirstChild("HumanoidRootPart") and hrp then
-                local dist = (hrp.Position - miner.HumanoidRootPart.Position).Magnitude
-                local visible = state and (dist <= MAX_DISTANCE)
-                esp.box.Visible = visible
-                esp.billboard.Enabled = visible
-            else
-                esp.box.Visible = false
-                esp.billboard.Enabled = false
-            end
-        end
-    end
-
-    -- Atualizar ESP toda frame
-    RunService.RenderStepped:Connect(function()
-        if espEnabled then
-            updateAllESP()
-            setESPActive(true)
-        else
-            setESPActive(false)
-        end
-    end)
-
-    -- Ativa/desativa ao clicar no botão
-    blocksEspButton.MouseButton1Click:Connect(function()
-        espEnabled = not espEnabled
-        blocksEspButton.Text = espEnabled and "Mineiros ESP: ON" or "Mineiros ESP: OFF"
-        setESPActive(espEnabled)
-    end)
-
-    -- Limpa ESP ao morrer/respawnar
-    game.Players.LocalPlayer.CharacterAdded:Connect(function()
-        setESPActive(espEnabled)
-    end)
-
-    -- Limpa todos ESP ao remover/miner morrer
-    if Workspace:FindFirstChild(MINERS_FOLDER_NAME) then
-        Workspace[MINERS_FOLDER_NAME].ChildRemoved:Connect(function(child)
-            removeESPForMiner(child)
-        end)
-    end
+	local button = script.Parent
+	local overframe = button.Parent
+	local gui = overframe.Parent -- Assuming Overframe and Frame are siblings
+	local targetFrame = gui:WaitForChild("Frame") -- The frame to show/hide
+	
+	-- Set initial state
+	targetFrame.Visible = true
+	button.Text = "↓"
+	
+	button.MouseButton1Click:Connect(function()
+		targetFrame.Visible = not targetFrame.Visible
+		button.Text = targetFrame.Visible and "↓" or "↑"
+	end)
+	
 end
+coroutine.wrap(INPMCR_fake_script)()
+local function PIZNK_fake_script() -- OverFrame.draggable 
+	local script = Instance.new('LocalScript', OverFrame)
 
--- Chama o ESP miner script no botão!
+	local dragFrame = script.Parent
+	local gui = dragFrame.Parent
+	local linkedFrame = gui:WaitForChild("Frame") -- This is the second frame to move together
+	
+	local dragging = false
+	local dragStart, startPos
+	
+	local UserInputService = game:GetService("UserInputService")
+	
+	local function update(input)
+		local delta = input.Position - dragStart
+		dragFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		linkedFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+	
+	dragFrame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = dragFrame.Position
+	
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			update(input)
+		end
+	end)
+	
+end
+coroutine.wrap(PIZNK_fake_script)()
+local function UKNKUIM_fake_script() -- sellore.sell ore tp 
+	local script = Instance.new('LocalScript', sellore)
 
-coroutine.wrap(MinerESP)()
+	local player = game.Players.LocalPlayer
+	local button = script.Parent
+	local placeablesFolder = workspace:WaitForChild("Placeables")
+	
+	-- Find your own UnloaderSystem based on OwnerId attribute
+	local function findOwnedUnloader()
+		for _, folder in ipairs(placeablesFolder:GetChildren()) do
+			if folder:IsA("Folder") then
+				local unloaderSystem = folder:FindFirstChild("UnloaderSystem")
+				if unloaderSystem and unloaderSystem:IsA("Model") then
+					local ownerId = unloaderSystem:GetAttribute("OwnerId")
+					if ownerId == player.UserId then
+						return unloaderSystem
+					end
+				end
+			end
+		end
+	end
+	
+	-- Teleport the character to a given position
+	local function teleportToPosition(position)
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:WaitForChild("HumanoidRootPart")
+		hrp.CFrame = CFrame.new(position)
+	end
+	
+	-- When button clicked
+	button.MouseButton1Click:Connect(function()
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:WaitForChild("HumanoidRootPart")
+	
+		-- Save player's current position
+		local savedPosition = hrp.Position
+	
+		-- Find the UnloaderSystem owned by the player
+		local unloaderSystem = findOwnedUnloader()
+		if unloaderSystem then
+			local unloader = unloaderSystem:FindFirstChild("Unloader")
+			if unloader then
+				local cargoVolume = unloader:FindFirstChild("CargoVolume")
+				if cargoVolume then
+					local cargoPrompt = cargoVolume:FindFirstChild("CargoPrompt")
+					if cargoPrompt and cargoPrompt:IsA("ProximityPrompt") then
+						-- TP to CargoVolume (stand close enough)
+						hrp.CFrame = cargoVolume.CFrame * CFrame.new(0, 3, 0)
+	
+						task.wait(0.3) -- Small wait to load
+	
+						fireproximityprompt(cargoPrompt) -- Activate the prompt
+	
+						task.wait(0.3) -- Allow prompt to process
+	
+						-- TP back to saved position
+						teleportToPosition(savedPosition)
+					else
+						warn("CargoPrompt not found inside CargoVolume!")
+					end
+				else
+					warn("CargoVolume not found inside Unloader!")
+				end
+			else
+				warn("Unloader not found inside UnloaderSystem!")
+			end
+		else
+			warn("No owned UnloaderSystem found!")
+		end
+	end)
+	
+end
+coroutine.wrap(UKNKUIM_fake_script)()
+local function FULE_fake_script() -- mine.mine tp 
+	local script = Instance.new('LocalScript', mine)
+
+	--// Services
+	local player = game.Players.LocalPlayer
+	local button = script.Parent -- The TextButton this script is inside
+	
+	--// Target Position (CHANGE THIS to where you want to teleport)
+	local targetPosition = Vector3.new(-1854.74646, 2.04443312, -194.955902, 0.0103887655, -4.52599488e-06, 0.999945998, 3.74917581e-05, 1.00000012, 4.13460657e-06, -0.999946117, 3.74438969e-05, 0.0103887822) -- Example coordinates
+	
+	--// Teleport when button is clicked
+	button.MouseButton1Click:Connect(function()
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = CFrame.new(targetPosition)
+		end
+	end)
+	
+end
+coroutine.wrap(FULE_fake_script)()
+local function KKQXR_fake_script() -- tycoon.tycoon tp 
+	local script = Instance.new('LocalScript', tycoon)
+
+	local player = game.Players.LocalPlayer
+	local button = script.Parent
+	local plotsFolder = workspace:WaitForChild("Plots")
+	local teleportPartName = "Centre" -- We'll teleport to the Centre part
+	
+	-- Function to check if BuildPlot has content (owned)
+	local function isOwned(buildPlot)
+		-- If there are more than 0 children inside BuildPlot, assume owned
+		return #buildPlot:GetChildren() > 0
+	end
+	
+	-- Function to find the player's plot
+	local function findMyPlot()
+		for _, plotModel in ipairs(plotsFolder:GetChildren()) do
+			if plotModel:IsA("Model") then
+				local buildPlot = plotModel:FindFirstChild("BuildPlot")
+				if buildPlot and isOwned(buildPlot) then
+					-- This plot is owned, likely by the player
+					return plotModel
+				end
+			end
+		end
+	end
+	
+	-- Teleport when button is clicked
+	button.MouseButton1Click:Connect(function()
+		local myPlot = findMyPlot()
+		if myPlot then
+			local centrePart = myPlot:FindFirstChild(teleportPartName)
+			if centrePart and centrePart:IsA("BasePart") then
+				local character = player.Character or player.CharacterAdded:Wait()
+				local hrp = character:FindFirstChild("HumanoidRootPart")
+				if hrp then
+					hrp.CFrame = CFrame.new(centrePart.Position + Vector3.new(0, 2, 0)) -- tp slightly above
+				end
+			else
+				warn("Centre part not found in your plot!")
+			end
+		else
+			warn("Your plot was not found!")
+		end
+	end)
+	
+end
+coroutine.wrap(KKQXR_fake_script)()
+local function TTDVCH_fake_script() -- shop.shop tp 
+	local script = Instance.new('LocalScript', shop)
+
+	--// Services
+	local player = game.Players.LocalPlayer
+	local button = script.Parent -- The TextButton this script is inside
+	
+	--// Target Position (CHANGE THIS to where you want to teleport)
+	local targetPosition = Vector3.new(-1551.3374, 7.15586329, 20.6824684, 0.00455896882, 3.29408795e-06, -0.999989569, 3.94628732e-05, 1, 3.47569585e-06, 0.999989569, -3.94807648e-05, 0.00455894647) -- Example coordinates
+	
+	--// Teleport when button is clicked
+	button.MouseButton1Click:Connect(function()
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = CFrame.new(targetPosition)
+		end
+	end)
+	
+end
+coroutine.wrap(TTDVCH_fake_script)()
+local function SFJYWQ_fake_script() -- TextBox.WalkSpeedScript 
+	local script = Instance.new('LocalScript', TextBox)
+
+	-- Get reference to the TextBox that this LocalScript is inside
+	local walkSpeedInputBox = script.Parent  -- The TextBox that this LocalScript is inside
+	
+	-- Function to set the WalkSpeed
+	local function setWalkSpeed(walkSpeedValue)
+		-- Check if the value is within the valid range
+		if walkSpeedValue >= 1 and walkSpeedValue <= 100 then
+			-- Set the walk speed for the player's character
+			game.Players.LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = walkSpeedValue
+			walkSpeedInputBox.Text = tostring(walkSpeedValue)  -- Display the valid walk speed in the TextBox
+		else
+			-- If the value is out of range, set the walk speed to 16 and display 16 in the TextBox
+			game.Players.LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = 16
+			walkSpeedInputBox.Text = "16"
+		end
+	end
+	
+	-- Set the default WalkSpeed to 16 and show "16" in the TextBox on startup
+	game.Players.LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = 16
+	walkSpeedInputBox.Text = "16"
+	
+	-- When the TextBox loses focus (e.g., user clicks away or presses Enter), update the WalkSpeed
+	walkSpeedInputBox.FocusLost:Connect(function(enterPressed)
+		local inputValue = tonumber(walkSpeedInputBox.Text)  -- Get the text from the TextBox and convert it to a number
+		if inputValue then
+			setWalkSpeed(inputValue)  -- If it's a valid number, update the walk speed
+		else
+			-- If it's not a valid number, clear the TextBox
+			walkSpeedInputBox.Text = "" 
+		end
+	end)
+	
+end
+coroutine.wrap(SFJYWQ_fake_script)()
+local function RTCZIU_fake_script() -- blocksEspButton.blocks esp script 
+	local script = Instance.new('LocalScript', blocksEspButton)
+
+	--// Services
+	local Workspace = game:GetService("Workspace")
+	local RunService = game:GetService("RunService")
+	local Players = game:GetService("Players")
+	
+	--// Variables
+	local player = Players.LocalPlayer
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	
+	local spawnedBlocks = Workspace:WaitForChild("SpawnedBlocks")
+	local espFolder = Instance.new("Folder")
+	espFolder.Name = "OreESP"
+	espFolder.Parent = game.CoreGui
+	
+	local espEnabled = false -- Start with ESP turned OFF
+	local maxDistance = 200 -- Studs
+	local espParts = {}
+	
+	--// Reference to the TextButton
+	local blocksEspButton = script.Parent -- LocalScript is inside the button
+	
+	-- Set the button text initially
+	blocksEspButton.Text = "Blocks ESP: OFF"
+	
+	--// Ore Color Settings
+	local oreColors = {
+		["Tin"] = Color3.fromRGB(57, 59, 49),
+		["Iron"] = Color3.fromRGB(130, 72, 31),
+		["Lead"] = Color3.fromRGB(14, 12, 13),
+		["Cobalt"] = Color3.fromRGB(26, 60, 99),
+		["Aluminium"] = Color3.fromRGB(53, 53, 51),
+		["Silver"] = Color3.fromRGB(48, 72, 79),
+		["Uranium"] = Color3.fromRGB(0, 255, 0),
+		["Vanadium"] = Color3.fromRGB(108, 22, 11),
+		["Tungsten"] = Color3.fromRGB(14, 19, 12),
+		["Gold"] = Color3.fromRGB(195, 152, 58),
+		["Titanium"] = Color3.fromRGB(54, 35, 65),
+		["Palladium"] = Color3.fromRGB(148, 111, 6),
+		["Plutonium"] = Color3.fromRGB(18, 250, 255),
+		["Mithril"] = Color3.fromRGB(33, 91, 53),
+		["Thorium"] = Color3.fromRGB(26, 30, 22),
+		["Iridium"] = Color3.fromRGB(110, 133, 130),
+		["Adamantium"] = Color3.fromRGB(62, 125, 56),
+		["Rhodium"] = Color3.fromRGB(179, 182, 174),
+		["Unobtanium"] = Color3.fromRGB(255, 0, 255),
+	
+		-- Gems
+		["Topaz"] = Color3.fromRGB(69, 70, 13),
+		["Emerald"] = Color3.fromRGB(2, 81, 0),
+		["Sapphire"] = Color3.fromRGB(1, 3, 72),
+		["Ruby"] = Color3.fromRGB(139, 0, 0),
+		["Diamond"] = Color3.fromRGB(43, 110, 108),
+		["Poudretteite"] = Color3.fromRGB(126, 21, 129),
+		["Zultanite"] = Color3.fromRGB(97, 62, 48),
+		["Grandidierite"] = Color3.fromRGB(19, 109, 47),
+		["Musgravite"] = Color3.fromRGB(24, 31, 26),
+		["Painite"] = Color3.fromRGB(85, 21, 26),
+	}
+	
+	--// Create ESP
+	local function createESP(part)
+		local mineId = part:GetAttribute("MineId") or "Unknown"
+		local color = oreColors[mineId] or Color3.fromRGB(255, 255, 255)
+	
+		local box = Instance.new("BoxHandleAdornment")
+		box.Adornee = part
+		box.Parent = espFolder
+		box.AlwaysOnTop = true
+		box.ZIndex = 1
+		box.Size = part.Size
+		box.Transparency = 0.6
+		box.Color3 = color
+		box.Visible = false
+	
+		local billboard = Instance.new("BillboardGui")
+		billboard.Adornee = part
+		billboard.Parent = espFolder
+		billboard.Size = UDim2.new(0, 100, 0, 20)
+		billboard.StudsOffset = Vector3.new(0, part.Size.Y/2 + 1, 0)
+		billboard.AlwaysOnTop = true
+		billboard.Enabled = false
+	
+		local textLabel = Instance.new("TextLabel")
+		textLabel.Parent = billboard
+		textLabel.Size = UDim2.new(1, 0, 1, 0)
+		textLabel.BackgroundTransparency = 1
+		textLabel.Text = mineId
+		textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		textLabel.TextStrokeTransparency = 0
+		textLabel.TextScaled = true
+	
+		espParts[part] = {box = box, billboard = billboard}
+	end
+	
+	--// Setup existing ores
+	local function setupExistingBlocks()
+		for _, block in ipairs(spawnedBlocks:GetChildren()) do
+			if block:IsA("BasePart") then
+				createESP(block)
+			end
+		end
+	end
+	
+	setupExistingBlocks()
+	
+	--// Handle new ores spawning
+	spawnedBlocks.ChildAdded:Connect(function(child)
+		if child:IsA("BasePart") then
+			task.wait(0.1)
+			createESP(child)
+		end
+	end)
+	
+	--// Handle ores being removed
+	spawnedBlocks.ChildRemoved:Connect(function(child)
+		if espParts[child] then
+			espParts[child].box:Destroy()
+			espParts[child].billboard:Destroy()
+			espParts[child] = nil
+		end
+	end)
+	
+	--// Update ESP every frame
+	RunService.RenderStepped:Connect(function()
+		if not humanoidRootPart then
+			character = player.Character or player.CharacterAdded:Wait()
+			humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+			if not humanoidRootPart then return end
+		end
+	
+		for part, esp in pairs(espParts) do
+			if part and part.Parent then
+				if espEnabled then
+					local distance = (humanoidRootPart.Position - part.Position).Magnitude
+					local isVisible = distance <= maxDistance
+					esp.box.Visible = isVisible
+					esp.billboard.Enabled = isVisible
+				else
+					esp.box.Visible = false
+					esp.billboard.Enabled = false
+				end
+			end
+		end
+	end)
+	
+	--// Toggle ESP on button click
+	blocksEspButton.MouseButton1Click:Connect(function()
+		espEnabled = not espEnabled
+		blocksEspButton.Text = espEnabled and "Blocks ESP: ON" or "Blocks ESP: OFF"
+	
+		for _, esp in pairs(espParts) do
+			if espEnabled then
+				local distance = (humanoidRootPart.Position - esp.box.Adornee.Position).Magnitude
+				local isVisible = distance <= maxDistance
+				esp.box.Visible = isVisible
+				esp.billboard.Enabled = isVisible
+			else
+				esp.box.Visible = false
+				esp.billboard.Enabled = false
+			end
+		end
+	end)
+	
+	--// Reset ESP when player dies or respawns
+	player.CharacterAdded:Connect(function(newCharacter)
+		-- Clear all old ESP parts
+		for part, esp in pairs(espParts) do
+			if esp.box then esp.box:Destroy() end
+			if esp.billboard then esp.billboard:Destroy() end
+		end
+		espParts = {}
+	
+		-- Update character reference
+		character = newCharacter
+		humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+	
+		-- Rebuild ESP if needed
+		setupExistingBlocks()
+	end)
+	
+end
+coroutine.wrap(RTCZIU_fake_script)()
+local function OQBZD_fake_script() -- Frame.right-shift 
+	local script = Instance.new('LocalScript', Frame)
+
+	-- Get references to the necessary UI elements
+	local frame = script.Parent  -- The Frame that you want to toggle
+	
+	-- Get the UserInputService to listen for key presses
+	local UserInputService = game:GetService("UserInputService")
+	
+	-- Initially, the frame is visible
+	frame.Visible = true
+	
+	-- Function to toggle the visibility of the frame
+	local function toggleFrameVisibility(input)
+		if input.UserInputType == Enum.UserInputType.Keyboard then
+			-- Check if RightShift key is pressed
+			if input.KeyCode == Enum.KeyCode.RightShift then
+				frame.Visible = not frame.Visible  -- Toggle the visibility
+			end
+		end
+	end
+	
+	-- Connect the input began event to detect key presses
+	UserInputService.InputBegan:Connect(toggleFrameVisibility)
+	
+end
+coroutine.wrap(OQBZD_fake_script)()
+local function VIJPO_fake_script() -- c4shop.c4 shop tp 
+	local script = Instance.new('LocalScript', c4shop)
+
+	--// Services
+	local player = game.Players.LocalPlayer
+	local button = script.Parent -- The TextButton this script is inside
+	
+	--// Target Position (CHANGE THIS to where you want to teleport)
+	local targetPosition = Vector3.new(387.988403, 75.3827286, -751.247314, 0.744538784, -3.17664817e-05, 0.667579174, 3.839493e-05, 1, 4.75812703e-06, -0.667579174, 2.20914371e-05, 0.744538844) -- Example coordinates
+	
+	--// Teleport when button is clicked
+	button.MouseButton1Click:Connect(function()
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = CFrame.new(targetPosition)
+		end
+	end)
+end
+coroutine.wrap(VIJPO_fake_script)()
+local function ETDSH_fake_script() -- resetc4button.mobile reset c4 button 
+	local script = Instance.new('LocalScript', resetc4button)
+
+	local Players = game:GetService("Players")
+	local VirtualInputManager = game:GetService("VirtualInputManager")
+	local camera = workspace.CurrentCamera
+
+	local player = Players.LocalPlayer
+	local button = script.Parent  -- "Reset C4 Button"
+	local character = player.Character or player.CharacterAdded:Wait()
+
+	local savedCFrame
+	local savedCameraCFrame
+	local savedWalkSpeed
+
+	local function resetC4()
+		character = player.Character or player.CharacterAdded:Wait()
+		local root = character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+		if not (root and humanoid) then return end
+
+		-- Save position, camera, walkspeed
+		savedCFrame = root.CFrame
+		savedCameraCFrame = camera.CFrame
+		savedWalkSpeed = humanoid.WalkSpeed
+
+		-- Reset character
+		humanoid.Health = 0
+
+		-- Wait for new character
+		player.CharacterAdded:Wait()
+		task.wait(0.2)
+
+		character = player.Character or player.CharacterAdded:Wait()
+		local newRoot = character:WaitForChild("HumanoidRootPart")
+		local newHumanoid = character:WaitForChild("Humanoid")
+
+		-- Restore data
+		newRoot.CFrame = savedCFrame
+		newHumanoid.WalkSpeed = savedWalkSpeed
+		camera.CFrame = savedCameraCFrame
+
+		-- Forçar modo mobile: direcional dinâmico (HUD mobile)
+		player.DevTouchMovementMode = Enum.DevTouchMovementMode.DynamicThumbstick
+
+		-- Simular pressionar "2"
+	end
+
+	-- Quando player clica no botão (mobile ou PC)
+	button.MouseButton1Click:Connect(function()
+		resetC4()
+	end)
+
+end
+coroutine.wrap(ETDSH_fake_script)()
