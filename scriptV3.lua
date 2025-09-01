@@ -1,5 +1,5 @@
--- Gui to Lua (UMT GUI com ESP dos Mineiros)
--- Version: 3.2
+-- Gui to Lua
+-- Version: 3.5
 
 -- Instances:
 
@@ -301,8 +301,16 @@ resetc4button.TextWrapped = true
 UICorner_11.CornerRadius = UDim.new(0, 3)
 UICorner_11.Parent = resetc4button
 
--- *** ESP SÓ DOS MINEIROS (NPCs EM Workspace.Miners) INCREMENTADO E CORRIGIDO ***
+-- Scripts:
+
+-- (Demais scripts da interface removidos para foco. Mantenha seus scripts de teleporte, sell, etc. abaixo deste comentário.)
+-- (Você pode inserir aqui todos os outros scripts do seu GUI, igual ao exemplo original.)
+
+-- *** ESP SÓ PARA OS MINEIROS (NPCs EM Workspace.Miners) ***
 local function MinerESP()
+    -- [ Miner ESP para Roblox Mobile | Só para os 'Mineiros' em Workspace.Miners ]
+    -- Executa ao clicar no botão blocksEspButton
+
     local Players = game:GetService("Players")
     local Workspace = game:GetService("Workspace")
     local RunService = game:GetService("RunService")
@@ -313,8 +321,7 @@ local function MinerESP()
     local MAX_DISTANCE = 200 -- Distância máxima para mostrar ESP
 
     -- UI
-    local blocksEspButton = blocksEspButton -- já declarado acima
-
+    local blocksEspButton = script.Parent
     blocksEspButton.Text = "Mineiros ESP: OFF"
 
     -- CoreGui para ESP
@@ -326,11 +333,15 @@ local function MinerESP()
     local espEnabled = false
     local espParts = {}
 
+    -- Função para criar ESP no personagem mineiro
     local function createESPForMiner(minerModel)
         local hrp = minerModel:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
+
+        -- Se já existe ESP para este mineiro, não cria de novo
         if espParts[minerModel] then return end
 
+        -- Adorno caixa
         local box = Instance.new("BoxHandleAdornment")
         box.Adornee = hrp
         box.Parent = espFolder
@@ -341,6 +352,7 @@ local function MinerESP()
         box.Color3 = Color3.fromRGB(255, 204, 0)
         box.Visible = false
 
+        -- Billboard com nome
         local billboard = Instance.new("BillboardGui")
         billboard.Adornee = hrp
         billboard.Parent = espFolder
@@ -362,48 +374,59 @@ local function MinerESP()
         espParts[minerModel] = {box = box, billboard = billboard}
     end
 
+    -- Função para remover ESP de mineiro
     local function removeESPForMiner(minerModel)
         if espParts[minerModel] then
-            if espParts[minerModel].box then espParts[minerModel].box:Destroy() end
-            if espParts[minerModel].billboard then espParts[minerModel].billboard:Destroy() end
+            espParts[minerModel].box:Destroy()
+            espParts[minerModel].billboard:Destroy()
             espParts[minerModel] = nil
         end
     end
 
-    -- Atualiza ESP toda frame, verifica mineiros novos/removidos/movimento
-    RunService.RenderStepped:Connect(function()
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-        local minersFolder = Workspace:FindFirstChild(MINERS_FOLDER_NAME)
-        if not minersFolder then return end
-
-        -- Remove ESP de mineiros que saíram ou morreram
-        for miner, v in pairs(espParts) do
-            if not miner or not miner.Parent or not miner:FindFirstChild("HumanoidRootPart") then
+    -- Atualizar ESP para todos os mineiros
+    local function updateAllESP()
+        -- Remover ESP de mineiros que não existem mais
+        for miner, _ in pairs(espParts) do
+            if not miner.Parent then
                 removeESPForMiner(miner)
             end
         end
 
-        -- Adiciona ESP para mineiros que ainda não tem
-        for _, miner in ipairs(minersFolder:GetChildren()) do
-            if miner:IsA("Model") and miner:FindFirstChild("HumanoidRootPart") then
-                if not espParts[miner] then
+        -- Adicionar ESP para mineiros existentes
+        local minersFolder = Workspace:FindFirstChild(MINERS_FOLDER_NAME)
+        if minersFolder then
+            for _, miner in ipairs(minersFolder:GetChildren()) do
+                if miner:IsA("Model") and miner:FindFirstChild("HumanoidRootPart") then
                     createESPForMiner(miner)
                 end
             end
         end
+    end
 
-        -- Atualiza visibilidade e posição dos adornos
+    -- Mostrar/Esconder ESP conforme ativação
+    local function setESPActive(state)
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:FindFirstChild("HumanoidRootPart")
         for miner, esp in pairs(espParts) do
             if miner.Parent and miner:FindFirstChild("HumanoidRootPart") and hrp then
                 local dist = (hrp.Position - miner.HumanoidRootPart.Position).Magnitude
-                local isVisible = espEnabled and (dist <= MAX_DISTANCE)
-                esp.box.Visible = isVisible
-                esp.billboard.Enabled = isVisible
+                local visible = state and (dist <= MAX_DISTANCE)
+                esp.box.Visible = visible
+                esp.billboard.Enabled = visible
             else
                 esp.box.Visible = false
                 esp.billboard.Enabled = false
             end
+        end
+    end
+
+    -- Atualizar ESP toda frame
+    RunService.RenderStepped:Connect(function()
+        if espEnabled then
+            updateAllESP()
+            setESPActive(true)
+        else
+            setESPActive(false)
         end
     end)
 
@@ -411,16 +434,22 @@ local function MinerESP()
     blocksEspButton.MouseButton1Click:Connect(function()
         espEnabled = not espEnabled
         blocksEspButton.Text = espEnabled and "Mineiros ESP: ON" or "Mineiros ESP: OFF"
+        setESPActive(espEnabled)
     end)
 
     -- Limpa ESP ao morrer/respawnar
-    player.CharacterAdded:Connect(function()
-        for miner, esp in pairs(espParts) do
-            esp.box.Visible = false
-            esp.billboard.Enabled = false
-        end
+    game.Players.LocalPlayer.CharacterAdded:Connect(function()
+        setESPActive(espEnabled)
     end)
+
+    -- Limpa todos ESP ao remover/miner morrer
+    if Workspace:FindFirstChild(MINERS_FOLDER_NAME) then
+        Workspace[MINERS_FOLDER_NAME].ChildRemoved:Connect(function(child)
+            removeESPForMiner(child)
+        end)
+    end
 end
 
--- Chama o ESP miner script!
+-- Chama o ESP miner script no botão!
+
 coroutine.wrap(MinerESP)()
